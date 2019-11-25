@@ -20,7 +20,7 @@ func main() {
 	controllers.SetRedisClient(redisClient)
 
 	// Configure gRPC client
-	conn, err := grpc.Dial("kgs-service:3000", grpc.WithInsecure())
+	conn, err := grpc.Dial("localhost:3000", grpc.WithInsecure())
 	if err != nil {
 		panic(err)
 	}
