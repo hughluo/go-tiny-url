@@ -22,18 +22,19 @@ type gRPCServer struct{}
 var CLIENT *redis.Client
 
 func main() {
-	// set up redis client
+	// Configure redis client
 	CLIENT = createClient()
 
 	//os.Setenv("REDIS_INITED", "false")
-	os.Setenv("KEY_LENGTH", "2")
+	//os.Setenv("KEY_LENGTH", "2")
 	if REDIS_INITED := os.Getenv("REDIS_INITED"); REDIS_INITED == "false" {
 		initRedis()
 	}
-	fmt.Print(getSetFreeAmount())
+	//fmt.Print(getSetFreeAmount())
 
 	// Set up gRPC
-	lis, err := net.Listen("tcp", ":3000")
+	GRPC_LISTEN_PORT := os.Getenv("GRPC_LISTEN_PORT")
+	lis, err := net.Listen("tcp", GRPC_LISTEN_PORT)
 	if err != nil {
 		log.Fatalf("Failed to listen:  %v", err)
 	}
@@ -104,13 +105,18 @@ func popSetFree() string {
 }
 
 func createClient() *redis.Client {
+	REDIS_FREE_ADDRESS := os.Getenv("REDIS_FREE_ADDRESS")
+	REDIS_FREE_PASSWORD := os.Getenv("REDIS_FREE_PASSWORD")
 	client := redis.NewClient(&redis.Options{
-		Addr:     "localhost:7001",
-		Password: "", // no password set
-		DB:       0,  // use default DB
+		Addr:     REDIS_FREE_ADDRESS,
+		Password: REDIS_FREE_PASSWORD,
+		DB:       0, // use default DB
 	})
 
 	pong, err := client.Ping().Result()
+	if err != nil {
+		panic(err)
+	}
 	fmt.Println(pong, err)
 	// Output: PONG <nil>
 	return client
