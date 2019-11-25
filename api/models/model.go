@@ -1,12 +1,19 @@
 package models
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
-	"github.com/go-redis/redis/v7"
 	"time"
+
+	"github.com/go-redis/redis/v7"
+	"github.com/hughluo/go-tiny-url/pb"
+	"golang.org/x/net/context"
 )
+
+var KGS_CLIENT pb.KGSServiceClient
+
+func SetKGSClient(client pb.KGSServiceClient) {
+	KGS_CLIENT = client
+}
 
 func RetrieveLongURL(client *redis.Client, tinyURL string) (bool, string, string) {
 
@@ -22,10 +29,12 @@ func RetrieveLongURL(client *redis.Client, tinyURL string) (bool, string, string
 }
 
 func CreateTinyURL(client *redis.Client, longURL string, duration time.Duration) (bool, string, string) {
-	tinyURL := getFreeTinyURL(client)
-	ok := false
+	got, tinyURL := getFreeTinyURL(client)
+	if !got {
+		panic(errors.New("not get free tinyurl"))
+	}
 	message := "Internal Error"
-
+	ok := false
 	if existTinyURL(client, tinyURL) {
 		panic(errors.New("Free tinyURL from KGS already exists in DB"))
 	} else {
@@ -44,18 +53,20 @@ func existTinyURL(client *redis.Client, tinyURL string) bool {
 	return exist == 1
 }
 
-func getFreeTinyURL(client *redis.Client) string {
-	tinyURL := "aaa"
-	req := &pb.Request{A: a, B: b}
-	if resp, err := addClient.Compute(ctx, req); err == nil {
-		msg := fmt.Sprintf("Summation is %d", resp.Result)
-		json.NewEncoder(w).Encode(msg)
+func getFreeTinyURL(client *redis.Client) (bool, string) {
+	ctx, cancel := context.WithTimeout(context.TODO(), time.Minute)
+	defer cancel()
+
+	ok := false
+	tinyURL := ""
+	req := &pb.KGSRequest{Request: "REQUST"}
+	if resp, err := KGS_CLIENT.GetFreeGoTinyURL(ctx, req); err == nil {
+		ok = true
+		tinyURL = resp.Result
 	} else {
-		msg := fmt.Sprintf("Internal server error: %s", err.Error())
-		json.NewEncoder(w).Encode(msg)
 
 	}
-	return tinyURL
+	return ok, tinyURL
 }
 
 func setURLMapping(client *redis.Client, tinyURL string, longURL string, duration time.Duration) {

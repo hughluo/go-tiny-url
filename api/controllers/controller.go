@@ -4,22 +4,23 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/go-redis/redis/v7"
 	"github.com/hughluo/go-tiny-url/api/models"
 	"github.com/julienschmidt/httprouter"
 )
 
-var CLIENT *redis.Client
+var REDIS_CLIENT *redis.Client
 
-func SetClient(client *redis.Client) {
-	CLIENT = client
+func SetRedisClient(client *redis.Client) {
+	REDIS_CLIENT = client
 }
 
 func CreateTinyURL(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	r.ParseForm()
 	longURL := r.Form["longURL"][0]
-	ok, message, tinyURL := models.CreateTinyURL(CLIENT, longURL)
+	ok, message, tinyURL := models.CreateTinyURL(REDIS_CLIENT, longURL, time.Hour)
 	if !ok {
 		log.Printf("create tiny url failed! %s", message)
 		w.WriteHeader(400)
@@ -28,8 +29,14 @@ func CreateTinyURL(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 	fmt.Fprintf(w, "tinyurl created %s!", tinyURL)
 }
 
-func RetrieveTinyURL(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	ok, message, longURL := models.RetrieveLongURL(CLIENT, tinyURL)
+func RetrieveLongURL(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	ok, message, longURL := models.RetrieveLongURL(REDIS_CLIENT, ps.ByName("tinyurl"))
+	if !ok {
+		w.WriteHeader(400)
+		fmt.Fprintf(w, "retrieval failed, message: %s", message)
+	} else {
+		fmt.Fprintf(w, "longURL retrieved %s!", longURL)
+	}
 }
 
 func UpdateTinyURL(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {

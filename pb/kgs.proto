@@ -11,5 +11,5 @@ message KGSResponse {
 }
 
 service KGSService {
-    rpc Compute (KGSRequest) returns (KGSResponse) {}
+    rpc GetFreeGoTinyURL (KGSRequest) returns (KGSResponse) {}
 }

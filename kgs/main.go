@@ -2,28 +2,59 @@ package main
 
 import (
 	"fmt"
-	"github.com/go-redis/redis/v7"
-	u "github.com/hughluo/go-tiny-url/kgs/utils"
+	"log"
+	"net"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/go-redis/redis/v7"
+	u "github.com/hughluo/go-tiny-url/kgs/utils"
+
+	"github.com/hughluo/go-tiny-url/pb"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
+
+type gRPCServer struct{}
 
 var CLIENT *redis.Client
 
 func main() {
-	CLIENT = CreateClient()
+	// set up redis client
+	CLIENT = createClient()
 
 	//os.Setenv("REDIS_INITED", "false")
 	os.Setenv("KEY_LENGTH", "2")
 	if REDIS_INITED := os.Getenv("REDIS_INITED"); REDIS_INITED == "false" {
-		InitRedis()
+		initRedis()
 	}
-	fmt.Print(GetSetFreeAmount())
+	fmt.Print(getSetFreeAmount())
 
+	// Set up gRPC
+	lis, err := net.Listen("tcp", ":3000")
+	if err != nil {
+		log.Fatalf("Failed to listen:  %v", err)
+	}
+
+	s := grpc.NewServer()
+	pb.RegisterKGSServiceServer(s, &gRPCServer{})
+	reflection.Register(s)
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("Failed to serve: %v", err)
+	}
 }
 
-func InitRedis() {
+func (s *gRPCServer) GetFreeGoTinyURL(cxt context.Context, req *pb.KGSRequest) (*pb.KGSResponse, error) {
+	result := &pb.KGSResponse{}
+	result.Result = popSetFree()
+	logMessage := fmt.Sprintf("KGS req: %s result: %s", req, result.Result)
+	log.Println(logMessage)
+	return result, nil
+}
+
+func initRedis() {
 	KEY_LENGTH, err := strconv.Atoi(os.Getenv("KEY_LENGTH"))
 	if err != nil {
 		panic(err)
@@ -39,7 +70,7 @@ func addAllTinyURLToSetFree(charArray []string, keyLength int) {
 
 func addAllTinyURLToSetFreeHelper(charArray []string, n int, prefix string, length int) {
 	if length == 0 {
-		AddToSetFree(prefix)
+		addToSetFree(prefix)
 		return
 	}
 
@@ -49,14 +80,14 @@ func addAllTinyURLToSetFreeHelper(charArray []string, n int, prefix string, leng
 	}
 }
 
-func AddToSetFree(freeTinyURL string) {
+func addToSetFree(freeTinyURL string) {
 	err := CLIENT.SAdd("FREE", freeTinyURL).Err()
 	if err != nil {
 		panic(err)
 	}
 }
 
-func GetSetFreeAmount() int64 {
+func getSetFreeAmount() int64 {
 	amount, err := CLIENT.SCard("FREE").Result()
 	if err != nil {
 		panic(err)
@@ -64,7 +95,7 @@ func GetSetFreeAmount() int64 {
 	return amount
 }
 
-func PopSetFree() string {
+func popSetFree() string {
 	freeTinyURL, err := CLIENT.SPop("FREE").Result()
 	if err != nil {
 		panic(err)
@@ -72,7 +103,7 @@ func PopSetFree() string {
 	return freeTinyURL
 }
 
-func CreateClient() *redis.Client {
+func createClient() *redis.Client {
 	client := redis.NewClient(&redis.Options{
 		Addr:     "localhost:7001",
 		Password: "", // no password set
