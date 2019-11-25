@@ -18,7 +18,7 @@ func SetKGSClient(client pb.KGSServiceClient) {
 func RetrieveLongURL(client *redis.Client, tinyURL string) (bool, string, string) {
 
 	ok := existTinyURL(client, tinyURL)
-	message := "Internal Error"
+	message := "Not Found"
 	longURL := "NONE"
 
 	if ok {
