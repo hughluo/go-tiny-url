@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"github.com/hughluo/go-tiny-url/models"
-	"github.com/julienschmidt/httprouter"
-	"github.com/go-redis/redis/v7"
 
+	"github.com/go-redis/redis/v7"
+	"github.com/hughluo/go-tiny-url/api/models"
+	"github.com/julienschmidt/httprouter"
 )
 
 var CLIENT *redis.Client
