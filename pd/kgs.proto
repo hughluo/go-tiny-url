@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package pb;
+
+message KGSRequest {
+    string request = 1;
+}
+
+message KGSResponse {
+    string result = 1;
+}
+
+service KGSService {
+    rpc Compute (KGSRequest) returns (KGSResponse) {}
+}
