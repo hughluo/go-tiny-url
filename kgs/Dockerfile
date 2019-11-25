@@ -1,8 +1,9 @@
 FROM golang:1.8
 
-WORKDIR /go/src/app
+WORKDIR /go/src/kgs
 COPY . .
 
 RUN go get -d -v ./...
 RUN go install -v ./...
-CMD ["app"]
+ENTRYPOINT go run main.go
+EXPOSE 3000

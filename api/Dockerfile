@@ -5,4 +5,5 @@ COPY . .
 
 RUN go get -d -v ./...
 RUN go install -v ./...
-CMD ["app"]
+ENTRYPOINT go run main.go
+EXPOSE 8080
