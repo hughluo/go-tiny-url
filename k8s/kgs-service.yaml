@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: kgs
-          image:
+          image: hughluo/gtu_kgs:latest
           ports:
             - name: kgs-service
               containerPort: 50052

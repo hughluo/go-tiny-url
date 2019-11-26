@@ -18,7 +18,7 @@ spec:
         - name: redis-main
           image: redis 
           ports:
-            - name: redis-main-service
+            - name: redismain
               containerPort: 6379
 
 ---
@@ -31,4 +31,4 @@ spec:
     app: redis-main
   ports:
     - port: 6379
-      targetPort: redis-main-service
+      targetPort: 6379

@@ -18,7 +18,7 @@ spec:
         - name: redis-free
           image: redis 
           ports:
-            - name: redis-free-service
+            - name: redisfree
               containerPort: 6379
 
 ---
@@ -31,4 +31,4 @@ spec:
     app: redis-free
   ports:
     - port: 6379
-      targetPort: redis-free-service
+      targetPort: 6379

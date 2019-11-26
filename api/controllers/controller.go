@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis"
 	"github.com/hughluo/go-tiny-url/api/models"
 	"github.com/julienschmidt/httprouter"
 )
