@@ -27,7 +27,7 @@ func main() {
 
 	//os.Setenv("REDIS_INITED", "false")
 	//os.Setenv("KEY_LENGTH", "2")
-	if REDIS_INITED := os.Getenv("REDIS_INITED"); REDIS_INITED == "false" {
+	if INIT_REDIS_FREE := os.Getenv("INIT_REDIS_FREE"); INIT_REDIS_FREE == "false" {
 		initRedis()
 	}
 	//fmt.Print(getSetFreeAmount())
