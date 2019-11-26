@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-free-deployment
+  labels:
+    app: redis-free
+spec:
+  selector:
+    matchLabels:
+      app: redis-free
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: redis-free
+    spec:
+      containers:
+        - name: redis-free
+          image: redis 
+          ports:
+            - name: redis-free-service
+              containerPort: 6379
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-free-service
+spec:
+  selector:
+    app: redis-free
+  ports:
+    - port: 6379
+      targetPort: redis-free-service

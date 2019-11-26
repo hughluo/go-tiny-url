@@ -10,8 +10,8 @@ import (
 
 	"github.com/go-redis/redis/v7"
 	u "github.com/hughluo/go-tiny-url/kgs/utils"
-
 	"github.com/hughluo/go-tiny-url/pb"
+	UTILS "github.com/hughluo/go-tiny-url/utils"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -25,16 +25,13 @@ func main() {
 	// Configure redis client
 	CLIENT = createClient()
 
-	//os.Setenv("REDIS_INITED", "false")
-	//os.Setenv("KEY_LENGTH", "2")
-	if INIT_REDIS_FREE := os.Getenv("INIT_REDIS_FREE"); INIT_REDIS_FREE == "false" {
-		initRedis()
+	if INIT_REDIS_FREE := UTILS.GetEnv("INIT_REDIS_FREE", "true"); INIT_REDIS_FREE == "true" {
+		log.Print("INIT_REDIS_FREE is true or undefined, start initRedis")
+		initRedisFree()
 	}
-	//fmt.Print(getSetFreeAmount())
 
 	// Set up gRPC
-	GRPC_LISTEN_PORT := os.Getenv("GRPC_LISTEN_PORT")
-	lis, err := net.Listen("tcp", GRPC_LISTEN_PORT)
+	lis, err := net.Listen("tcp", ":50052")
 	if err != nil {
 		log.Fatalf("Failed to listen:  %v", err)
 	}
@@ -55,10 +52,11 @@ func (s *gRPCServer) GetFreeGoTinyURL(cxt context.Context, req *pb.KGSRequest) (
 	return result, nil
 }
 
-func initRedis() {
-	KEY_LENGTH, err := strconv.Atoi(os.Getenv("KEY_LENGTH"))
+func initRedisFree() {
+	KEY_LENGTH, err := strconv.Atoi(UTILS.GetEnv("KEY_LENGTH", "4"))
 	if err != nil {
-		panic(err)
+		KEY_LENGTH = 4
+		log.Println("KEY_LENGTH not valid, fallback to 4")
 	}
 	base62 := u.GetBase62String()
 	base62Slice := strings.Split(base62, "")
@@ -105,10 +103,9 @@ func popSetFree() string {
 }
 
 func createClient() *redis.Client {
-	REDIS_FREE_ADDRESS := os.Getenv("REDIS_FREE_ADDRESS")
 	REDIS_FREE_PASSWORD := os.Getenv("REDIS_FREE_PASSWORD")
 	client := redis.NewClient(&redis.Options{
-		Addr:     REDIS_FREE_ADDRESS,
+		Addr:     "redis-free-service:6379",
 		Password: REDIS_FREE_PASSWORD,
 		DB:       0, // use default DB
 	})

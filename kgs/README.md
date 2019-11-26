@@ -16,14 +16,6 @@ The length of tinyURL
 
 "6"
 
-### REDIS_FREE_ADDRESS
-
-"localhost:7001"
-
 ### REDIS_FREE_PASSWORD
 
 "supersecretpassword"
-
-### GRPC_LISTEN_PORT
-
-":3000"

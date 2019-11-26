@@ -20,8 +20,8 @@ func main() {
 	controllers.SetRedisClient(redisClient)
 
 	// Configure gRPC client
-	GRPC_DIAL_TARGET := os.Getenv("GRPC_DIAL_TARGET")
-	conn, err := grpc.Dial(GRPC_DIAL_TARGET, grpc.WithInsecure())
+
+	conn, err := grpc.Dial("kgs-service:50052", grpc.WithInsecure())
 	if err != nil {
 		panic(err)
 	}
@@ -33,17 +33,15 @@ func main() {
 	router.POST("/gotinyurl/", controllers.CreateTinyURL)
 	router.GET("/gotinyurl/:tinyurl", controllers.RetrieveLongURL)
 
-	API_ADDRESS := os.Getenv("API_ADDRESS")
-	log.Fatal(http.ListenAndServe(API_ADDRESS, router))
+	log.Fatal(http.ListenAndServe(":8080", router))
 
 }
 
 func CreateClient() *redis.Client {
-	REDIS_MAIN_ADDRESS := os.Getenv("REDIS_MAIN_ADDRESS")
 	REDIS_MAIN_PASSWORD := os.Getenv("REDIS_MAIN_PASSWORD")
 
 	client := redis.NewClient(&redis.Options{
-		Addr:     REDIS_MAIN_ADDRESS,
+		Addr:     "redis-main-service:6379",
 		Password: REDIS_MAIN_PASSWORD,
 		DB:       0, // use default DB
 	})
