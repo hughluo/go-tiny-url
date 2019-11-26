@@ -1,6 +1,6 @@
 # api
 
-RESTFUL API for `tinyURL`
+RESTful API for `tinyURL`
 
 ## Features
 
