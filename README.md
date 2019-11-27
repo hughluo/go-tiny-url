@@ -12,5 +12,9 @@ Four services included:
 
 * `redis_free`: storage set of available `tinyURL`
 
+## REPO
+[`api`](https://github.com/hughluo/go-tiny-url-api)
+[`kgs`](https://github.com/hughluo/go-tiny-url-kgs)
+
 ## ISSUE
 `kgs` need warm up to generate all available `tinyURL` before hosting.
