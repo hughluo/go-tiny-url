@@ -13,4 +13,4 @@ Four services included:
 * `redis_free`: storage set of available `tinyURL`
 
 ## ISSUE
-KGS need warm up to generate all available tinyURL before hosting.
+`kgs` need warm up to generate all available `tinyURL` before hosting.
