@@ -13,5 +13,4 @@ Four services included:
 * `redis_free`: storage set of available `tinyURL`
 
 ## ISSUE
-Go mod works like hell when following the mono-repo approach, which was encouraged by the use of $GOPATH in godoc
-Consider split them again...
+KGS need warm up to generate all available tinyURL before hosting.
