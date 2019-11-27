@@ -17,6 +17,7 @@ spec:
       containers:
         - name: api
           image: hughluo/gtu_api:latest
+          imagePullPolicy: "Always"
           ports:
             - name: api-service
               containerPort: 8080

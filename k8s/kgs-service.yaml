@@ -17,6 +17,7 @@ spec:
       containers:
         - name: kgs
           image: hughluo/gtu_kgs:latest
+          imagePullPolicy: "Always"
           ports:
             - name: kgs-service
               containerPort: 50052
